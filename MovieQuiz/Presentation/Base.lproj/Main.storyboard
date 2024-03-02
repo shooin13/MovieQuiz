@@ -71,7 +71,7 @@
                                                 <color key="backgroundColor" name="YP White"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="НЕТ">
+                                                <state key="normal" title="Нет">
                                                     <color key="titleColor" name="YP Black"/>
                                                 </state>
                                                 <userDefinedRuntimeAttributes>
@@ -88,7 +88,7 @@
                                                 <color key="backgroundColor" name="YP White"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                                <state key="normal" title="ДА">
+                                                <state key="normal" title="Да">
                                                     <color key="titleColor" name="YP Black"/>
                                                 </state>
                                                 <userDefinedRuntimeAttributes>
@@ -118,6 +118,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="buttonsStackView" destination="Jv7-Rm-MxI" id="rAW-fs-fpX"/>
                         <outlet property="counterLabel" destination="9Jm-Px-vfG" id="a3b-dG-X12"/>
                         <outlet property="imageView" destination="HNx-xe-RA5" id="ggj-gB-GDb"/>
                         <outlet property="textLabel" destination="VOH-MS-aCO" id="kKV-q0-p6x"/>

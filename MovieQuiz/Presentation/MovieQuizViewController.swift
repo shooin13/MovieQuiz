@@ -6,9 +6,16 @@ final class MovieQuizViewController: UIViewController {
   @IBOutlet private weak var textLabel: UILabel!
   @IBOutlet private weak var counterLabel: UILabel!
   
+  @IBOutlet private weak var buttonsStackView: UIStackView!
+  
   //MARK: - private properties
   private var currentQuestionIndex = 0
   private var correctAnswers = 0
+  
+  //MARK: - UI Setup
+  override var preferredStatusBarStyle: UIStatusBarStyle {
+      return .lightContent
+  }
   
   // MARK: - Lifecycle
   override func viewDidLoad() {
@@ -21,16 +28,16 @@ final class MovieQuizViewController: UIViewController {
   @IBAction private func yesButtonClicked(_ sender: UIButton) {
     let currentQuestion = questions[currentQuestionIndex]
     let givenAnswer = true
+    buttonsStackView.isUserInteractionEnabled = false
     showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
   }
   
   @IBAction private func noButtonClicked(_ sender: UIButton) {
     let currentQuestion = questions[currentQuestionIndex]
     let givenAnswer = false
+    buttonsStackView.isUserInteractionEnabled = false
     showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
   }
-  
-  
   
   //MARK: - Models
   private struct QuizQestion {
@@ -79,6 +86,7 @@ final class MovieQuizViewController: UIViewController {
     }
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
       self.showNextQuestionOrResults()
+      self.buttonsStackView.isUserInteractionEnabled = true
     }
   }
   
@@ -112,17 +120,17 @@ final class MovieQuizViewController: UIViewController {
       let firstQuestion = self.questions[self.currentQuestionIndex]
       let viewModel = self.convert(model: firstQuestion)
       self.show(quiz: viewModel)
+      self.imageView.layer.borderColor = UIColor.clear.cgColor
     }
     alert.addAction(action)
     self.present(alert, animated: true)
-    
   }
   
   //MARK: - Mock data
   private let questions: [QuizQestion] = [
     QuizQestion(
       image: "The Godfather",
-      text: "Рейтинг этого фильма больше чем 6",
+      text: "Рейтинг этого фильма больше чем 6?",
       correctAnswer: true),
     QuizQestion(
       image: "The Dark Knight",
@@ -161,5 +169,4 @@ final class MovieQuizViewController: UIViewController {
       text: "Рейтинг этого фильма больше чем 6?",
       correctAnswer: false)
   ]
-  
 }

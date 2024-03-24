@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
   //MARK: - IBOutlets
   @IBOutlet private weak var imageView: UIImageView!
   @IBOutlet private weak var textLabel: UILabel!
@@ -11,59 +11,51 @@ final class MovieQuizViewController: UIViewController {
   //MARK: - private properties
   private var currentQuestionIndex = 0
   private var correctAnswers = 0
+  private let questionsAmount = 10
+  private var questionFactory: QuestionFactoryProtocol?
+  private var currentQuestion: QuizQuestion?
   
   //MARK: - UI Setup
   override var preferredStatusBarStyle: UIStatusBarStyle {
-      return .lightContent
+    return .lightContent
   }
   
   // MARK: - Lifecycle
   override func viewDidLoad() {
     super.viewDidLoad()
-    let currentQuestion = questions[currentQuestionIndex]
-    show(quiz: convert(model: currentQuestion))
+    
+    let questionFactory = QuestionFactory()
+    questionFactory.delegate = self
+    self.questionFactory = questionFactory
+    questionFactory.requestNextQuestion()
   }
   
   //MARK: - IBActions
   @IBAction private func yesButtonClicked(_ sender: UIButton) {
-    let currentQuestion = questions[currentQuestionIndex]
+    guard let currentQuestion else {
+      return
+    }
     let givenAnswer = true
     buttonsStackView.isUserInteractionEnabled = false
     showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
   }
   
   @IBAction private func noButtonClicked(_ sender: UIButton) {
-    let currentQuestion = questions[currentQuestionIndex]
+    guard let currentQuestion else {
+      return
+    }
     let givenAnswer = false
     buttonsStackView.isUserInteractionEnabled = false
     showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
   }
   
-  //MARK: - Models
-  private struct QuizQestion {
-    let image: String
-    let text: String
-    let correctAnswer: Bool
-  }
-  
-  private struct QuizStepViewModel {
-    let image: UIImage
-    let question: String
-    let questionNumber: String
-  }
-  
-  private struct QuizResultsViewModel {
-    let title: String
-    let text: String
-    let buttonText: String
-  }
   
   //MARK: - Private methods
   //Convertion from QuizQuestion to QuizStepViewModel
-  private func convert(model: QuizQestion) -> QuizStepViewModel {
-    QuizStepViewModel(image: UIImage(named: model.image) ?? UIImage() , 
+  private func convert(model: QuizQuestion) -> QuizStepViewModel {
+    QuizStepViewModel(image: UIImage(named: model.image) ?? UIImage() ,
                       question: model.text,
-                      questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)")
+                      questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
   }
   
   //Showing question in ViewController
@@ -84,7 +76,8 @@ final class MovieQuizViewController: UIViewController {
     } else {
       imageView.layer.borderColor = UIColor.ypRed.cgColor
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+      guard let self else { return }
       self.showNextQuestionOrResults()
       self.buttonsStackView.isUserInteractionEnabled = true
     }
@@ -92,16 +85,14 @@ final class MovieQuizViewController: UIViewController {
   
   //Showing next question or demonstrating Quiz results
   private func showNextQuestionOrResults() {
-    if currentQuestionIndex == questions.count - 1 {
+    if currentQuestionIndex == questionsAmount - 1 {
       // go to Quiz Results
       show(quiz: QuizResultsViewModel(title: "Этот раунд окончен!", text: "Ваш результат: \(correctAnswers)/10", buttonText: "Сыграть еще раз"))
-
+      
     } else {
       currentQuestionIndex += 1
       imageView.layer.borderColor = UIColor.clear.cgColor
-      let nextQuestion = questions[currentQuestionIndex]
-      let viewModel = convert(model: nextQuestion)
-      show(quiz: viewModel)
+      self.questionFactory?.requestNextQuestion()
     }
   }
   
@@ -112,61 +103,30 @@ final class MovieQuizViewController: UIViewController {
       message: result.text,
       preferredStyle: .alert)
     
-    let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
+    let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
       //start over
+      guard let self else { return }
       self.currentQuestionIndex = 0
       self.correctAnswers = 0
-      
-      let firstQuestion = self.questions[self.currentQuestionIndex]
-      let viewModel = self.convert(model: firstQuestion)
-      self.show(quiz: viewModel)
+      questionFactory?.requestNextQuestion()
       self.imageView.layer.borderColor = UIColor.clear.cgColor
     }
     alert.addAction(action)
     self.present(alert, animated: true)
   }
   
-  //MARK: - Mock data
-  private let questions: [QuizQestion] = [
-    QuizQestion(
-      image: "The Godfather",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: true),
-    QuizQestion(
-      image: "The Dark Knight",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: true),
-    QuizQestion(
-      image: "Kill Bill",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: true),
-    QuizQestion(
-      image: "The Avengers",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: true),
-    QuizQestion(
-      image: "Deadpool",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: true),
-    QuizQestion(
-      image: "The Green Knight",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: true),
-    QuizQestion(
-      image: "Old",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: false),
-    QuizQestion(
-      image: "The Ice Age Adventures of Buck Wild",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: false),
-    QuizQestion(
-      image: "Tesla",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: false),
-    QuizQestion(
-      image: "Vivarium",
-      text: "Рейтинг этого фильма больше чем 6?",
-      correctAnswer: false)
-  ]
+  //MARK: - QuestionFactoryDelegate
+  func didReceiveNextQuestion(question: QuizQuestion?) {
+    guard let question = question else {
+      return
+    }
+    currentQuestion = question
+    let viewModel = convert(model: question)
+    DispatchQueue.main.async { [weak self] in
+      self?.show(quiz: viewModel)
+    }
+    
+  }
+  
+  
 }

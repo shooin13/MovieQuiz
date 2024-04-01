@@ -5,7 +5,7 @@ struct GameRecord: Codable {
   let total: Int
   let date: Date
   
-  private func newRecord(newRecord: GameRecord) -> Bool {
+  func newRecord(newRecord: GameRecord) -> Bool {
     correct > newRecord.correct
   }
   

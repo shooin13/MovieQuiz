@@ -109,7 +109,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                                 message: """
                                             Ваш результат: \(correctAnswers)/\(questionsAmount)
                                             Количество сыгранных квизов: \(statisticService.gamesCount)
-                                            Рекорд: \(statisticService.bestGame.correct) (\(statisticService.bestGame.date.dateTimeString))
+                                            Рекорд: \(statisticService.bestGame.correct)/\(questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
                                             Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy * 100))%
                                         """,
                                 buttonText: "Сыграть еще раз") { [weak self] in
@@ -118,7 +118,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
     
     alertPresenter.showAlert(alertModel)
-//    statisticService.store(correct: correctAnswers, total: questionsAmount)
   }
   
   
@@ -138,10 +137,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   //MARK: - AlertPresenterDelegate
   
   func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter) {
-    self.currentQuestionIndex = 0
-    self.correctAnswers = 0
+    currentQuestionIndex = 0
+    correctAnswers = 0
     questionFactory?.requestNextQuestion()
-    self.imageView.layer.borderColor = UIColor.clear.cgColor
+    imageView.layer.borderColor = UIColor.clear.cgColor
   }
   
   func viewControllerForAlertPresenting() -> UIViewController {

@@ -9,9 +9,9 @@ final class AlertPresenter {
       message: alertModel.message,
       preferredStyle: .alert)
     
-    let action = UIAlertAction(title: alertModel.buttonText, style: .default) { [weak self] _ in
-      guard let self else { return }
-      delegate?.alertPresenterDidTapButton(self)
+    
+    let action = UIAlertAction(title: alertModel.buttonText, style: .default) { _ in
+      alertModel.completion?()
     }
     
     alert.addAction(action)

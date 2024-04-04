@@ -1,6 +1,7 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
+  
   //MARK: - IBOutlets
   @IBOutlet private weak var imageView: UIImageView!
   @IBOutlet private weak var textLabel: UILabel!
@@ -8,12 +9,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
   
   @IBOutlet private weak var buttonsStackView: UIStackView!
   
-  //MARK: - private properties
+  //MARK: - Private properties
   private var currentQuestionIndex = 0
   private var correctAnswers = 0
   private let questionsAmount = 10
   private var questionFactory: QuestionFactoryProtocol?
   private var currentQuestion: QuizQuestion?
+  private var alertPresenter = AlertPresenter()
+  private let statisticService = StatisticServiceImplementation()
+  
   
   //MARK: - UI Setup
   override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -28,6 +32,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     questionFactory.delegate = self
     self.questionFactory = questionFactory
     questionFactory.requestNextQuestion()
+    
+    alertPresenter.delegate = self
   }
   
   //MARK: - IBActions
@@ -87,7 +93,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
   private func showNextQuestionOrResults() {
     if currentQuestionIndex == questionsAmount - 1 {
       // go to Quiz Results
-      show(quiz: QuizResultsViewModel(title: "Этот раунд окончен!", text: "Ваш результат: \(correctAnswers)/10", buttonText: "Сыграть еще раз"))
+      showQuizResult()
       
     } else {
       currentQuestionIndex += 1
@@ -97,23 +103,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
   }
   
   //Showing Quiz Results
-  private func show(quiz result: QuizResultsViewModel) {
-    let alert = UIAlertController(
-      title: result.title,
-      message: result.text,
-      preferredStyle: .alert)
-    
-    let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
-      //start over
+  private func showQuizResult() {
+    statisticService.store(correct: correctAnswers, total: questionsAmount)
+    let alertModel = AlertModel(title: "Этот раунд окончен!",
+                                message: """
+                                            Ваш результат: \(correctAnswers)/\(questionsAmount)
+                                            Количество сыгранных квизов: \(statisticService.gamesCount)
+                                            Рекорд: \(statisticService.bestGame.correct)/\(questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
+                                            Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy * 100))%
+                                        """,
+                                buttonText: "Сыграть еще раз") { [weak self] in
       guard let self else { return }
-      self.currentQuestionIndex = 0
-      self.correctAnswers = 0
-      questionFactory?.requestNextQuestion()
-      self.imageView.layer.borderColor = UIColor.clear.cgColor
+      alertPresenterDidTapButton(alertPresenter)
     }
-    alert.addAction(action)
-    self.present(alert, animated: true)
+    
+    alertPresenter.showAlert(alertModel)
   }
+  
   
   //MARK: - QuestionFactoryDelegate
   func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -128,5 +134,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
   }
   
+  //MARK: - AlertPresenterDelegate
+  
+  func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter) {
+    currentQuestionIndex = 0
+    correctAnswers = 0
+    questionFactory?.requestNextQuestion()
+    imageView.layer.borderColor = UIColor.clear.cgColor
+  }
+  
+  func viewControllerForAlertPresenting() -> UIViewController {
+    return self
+  }
   
 }

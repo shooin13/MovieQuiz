@@ -9,7 +9,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   
   @IBOutlet private weak var buttonsStackView: UIStackView!
   
-  //MARK: - private properties
+  //MARK: - Private properties
   private var currentQuestionIndex = 0
   private var correctAnswers = 0
   private let questionsAmount = 10

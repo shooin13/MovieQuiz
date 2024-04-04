@@ -5,7 +5,17 @@ final class StatisticServiceImplementation: StatisticService {
   private enum Keys: String {
     case correct, total, bestGame, gamesCount
   }
+  
   private let userDefaults = UserDefaults.standard
+  
+  var totalCorrect: Int {
+    get {
+      return userDefaults.integer(forKey: Keys.correct.rawValue)
+    }
+    set {
+      return userDefaults.set(newValue, forKey: Keys.correct.rawValue)
+    }
+  }
   
   var totalAccuracy: Double {
     get {
@@ -14,7 +24,7 @@ final class StatisticServiceImplementation: StatisticService {
     set {
       return userDefaults.set(newValue, forKey: Keys.total.rawValue)
     }
-      
+    
   }
   
   var gamesCount: Int {
@@ -44,14 +54,14 @@ final class StatisticServiceImplementation: StatisticService {
   }
   
   func store(correct count: Int, total amount: Int) {
-    gamesCount += 1
     
-    if amount == 0 {
-      print("Failed to save data")
-      return
-    }
-    let newTotalAccuracy = Double(count) / Double(amount)
-    totalAccuracy = (totalAccuracy * Double(gamesCount - 1) + newTotalAccuracy) / Double(gamesCount)
+    gamesCount += 1
+    totalCorrect += count
+    
+    let totalAvailablePoints = 10 * gamesCount
+    
+    let newTotalAccuracy = Double(totalCorrect) / Double(totalAvailablePoints)
+    totalAccuracy = newTotalAccuracy
     
     let newGameRecord = GameRecord(correct: count, total: amount, date: Date())
     

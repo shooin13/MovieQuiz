@@ -109,6 +109,7 @@
                             </stackView>
                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="A1f-rj-Xnh">
                                 <rect key="frame" x="0.0" y="59" width="430" height="839"/>
+                                <color key="color" name="YP Black"/>
                             </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>

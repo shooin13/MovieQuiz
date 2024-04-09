@@ -147,18 +147,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
       guard let self else {return}
       (questionFactory as! QuestionFactory).loadData()
     })
-    
-    //    let model = AlertModel(title: "Ошибка",
-    //                           message: message,
-    //                           buttonText: "Попробовать еще раз") { [weak self] in
-    //      guard let self = self else { return }
-    //
-    //      self.currentQuestionIndex = 0
-    //      self.correctAnswers = 0
-    //
-    //      self.questionFactory?.requestNextQuestion()
-    //    }
-    //    alertPresenter.showAlert(model)
   }
   
   //MARK: - QuestionFactoryDelegate

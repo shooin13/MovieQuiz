@@ -11,6 +11,13 @@ class QuestionFactory: QuestionFactoryProtocol {
   
   private var movies: [MostPopularMovie] = []
   
+  private struct CustomNetworkError: LocalizedError {
+    var errorDescription: String?
+    init(errorDescription: String) {
+      self.errorDescription = errorDescription
+    }
+  }
+  
   //MARK: - Mock data
   //  private let questions: [QuizQuestion] = [
   //    QuizQuestion(
@@ -70,6 +77,10 @@ class QuestionFactory: QuestionFactoryProtocol {
         imageData = try Data(contentsOf: movie.resizedImageURL)
       } catch {
         print("Failed to load image")
+        DispatchQueue.main.async { [weak self] in
+          guard let self else { return }
+          self.delegate?.didFailToLoadData(with: CustomNetworkError(errorDescription: "Невозможно загрузить данные") )
+        }
       }
       
       let rating = Float(movie.rating) ?? 0
@@ -83,6 +94,7 @@ class QuestionFactory: QuestionFactoryProtocol {
       
       DispatchQueue.main.async { [weak self] in
         guard let self else { return }
+        self.delegate?.hideLoadingIndicatorWhenTheImageIsLoaded()
         self.delegate?.didReceiveNextQuestion(question: question)
       }
     }

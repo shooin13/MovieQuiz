@@ -21,6 +21,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   private var statisticService = StatisticServiceImplementation()
   private let moviesLoader = MoviesLoader()
   
+
   
   //MARK: - UI Setup
   
@@ -35,12 +36,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     
     questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     statisticService = StatisticServiceImplementation()
-    
     showLoadingIndicator()
     (questionFactory as! QuestionFactory).loadData()
-    
     alertPresenter.delegate = self
-    
   }
   
   //MARK: - IBActions
@@ -105,6 +103,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     } else {
       currentQuestionIndex += 1
       imageView.layer.borderColor = UIColor.clear.cgColor
+      showLoadingIndicator()
       self.questionFactory?.requestNextQuestion()
     }
   }
@@ -142,10 +141,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   //Showing NetworkError
   private func showNetworkError(message: String) {
     hideLoadingIndicator()
-    alertPresenter.showAlert(AlertModel(title: "Ошибка",
+    alertPresenter.showAlert(AlertModel(title: "Что-то пошло не так(",
                                         message: message,
                                         buttonText: "Попробовать еще раз") { [weak self] in
       guard let self else {return}
+      (questionFactory as! QuestionFactory).loadData()
     })
     
     //    let model = AlertModel(title: "Ошибка",
@@ -182,6 +182,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     showNetworkError(message: error.localizedDescription)
   }
   
+  func hideLoadingIndicatorWhenTheImageIsLoaded() {
+    hideLoadingIndicator()
+  }
+  
   //MARK: - AlertPresenterDelegate
   
   func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter) {
@@ -196,3 +200,5 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   }
   
 }
+
+

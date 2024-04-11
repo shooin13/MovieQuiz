@@ -21,8 +21,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   private var statisticService = StatisticServiceImplementation()
   private let moviesLoader = MoviesLoader()
   
-
-  
   //MARK: - UI Setup
   
   override var preferredStatusBarStyle: UIStatusBarStyle {

@@ -44,23 +44,27 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   //MARK: - IBActions
   
   @IBAction private func yesButtonClicked(_ sender: UIButton) {
-    guard let currentQuestion else {
-      return
-    }
-    let givenAnswer = true
-    buttonsStackView.isUserInteractionEnabled = false
-    showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
+    operateButtonTap(givenAnswer: true)
   }
   @IBAction private func noButtonClicked(_ sender: UIButton) {
-    guard let currentQuestion else {
-      return
-    }
-    let givenAnswer = false
-    buttonsStackView.isUserInteractionEnabled = false
-    showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
+    operateButtonTap(givenAnswer: false)
   }
   
   //MARK: - Private methods
+  
+  //operate button tapped
+  private func operateButtonTap(givenAnswer: Bool) {
+    disableButtonsInteraction()
+    guard let currentQuestion else {
+      return
+    }
+    showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
+  }
+  
+  //disable buttons interaction
+  private func disableButtonsInteraction() {
+    buttonsStackView.isUserInteractionEnabled = false
+  }
   
   //Convertion from QuizQuestion to QuizStepViewModel
   private func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -102,7 +106,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
       
     } else {
       currentQuestionIndex += 1
-      imageView.layer.borderColor = UIColor.clear.cgColor
+      
       showLoadingIndicator()
       self.questionFactory?.requestNextQuestion()
     }
@@ -172,6 +176,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   
   func hideLoadingIndicatorWhenTheImageIsLoaded() {
     hideLoadingIndicator()
+    imageView.layer.borderColor = UIColor.clear.cgColor
   }
   
   //MARK: - AlertPresenterDelegate

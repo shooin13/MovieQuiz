@@ -128,13 +128,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   
   //Showing ActivityIndicator
   private func showLoadingIndicator() {
-    activityIndicator.isHidden = false
     activityIndicator.startAnimating()
   }
   
   //Hiding ActivityIndicator
   private func hideLoadingIndicator() {
-    activityIndicator.isHidden = true
     activityIndicator.stopAnimating()
   }
   
@@ -145,7 +143,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                                         message: message,
                                         buttonText: "Попробовать еще раз") { [weak self] in
       guard let self else {return}
-      (questionFactory as! QuestionFactory).loadData()
+      
+      guard let questionFactory = questionFactory as? QuestionFactory else { return }
+      questionFactory.loadData()
     })
   }
   

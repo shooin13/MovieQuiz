@@ -3,63 +3,72 @@ import UIKit
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
   
   //MARK: - IBOutlets
+  
   @IBOutlet private weak var imageView: UIImageView!
   @IBOutlet private weak var textLabel: UILabel!
   @IBOutlet private weak var counterLabel: UILabel!
-  
   @IBOutlet private weak var buttonsStackView: UIStackView!
+  @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
   
   //MARK: - Private properties
+  
   private var currentQuestionIndex = 0
   private var correctAnswers = 0
   private let questionsAmount = 10
   private var questionFactory: QuestionFactoryProtocol?
   private var currentQuestion: QuizQuestion?
   private var alertPresenter = AlertPresenter()
-  private let statisticService = StatisticServiceImplementation()
+  private var statisticService = StatisticServiceImplementation()
+  private let moviesLoader = MoviesLoader()
   
+
   
   //MARK: - UI Setup
+  
   override var preferredStatusBarStyle: UIStatusBarStyle {
     return .lightContent
   }
   
   // MARK: - Lifecycle
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    let questionFactory = QuestionFactory()
-    questionFactory.delegate = self
-    self.questionFactory = questionFactory
-    questionFactory.requestNextQuestion()
-    
+    questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+    statisticService = StatisticServiceImplementation()
+    showLoadingIndicator()
+    (questionFactory as! QuestionFactory).loadData()
     alertPresenter.delegate = self
   }
   
   //MARK: - IBActions
+  
   @IBAction private func yesButtonClicked(_ sender: UIButton) {
-    guard let currentQuestion else {
-      return
-    }
-    let givenAnswer = true
-    buttonsStackView.isUserInteractionEnabled = false
-    showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
+    operateButtonTap(givenAnswer: true)
   }
-  
   @IBAction private func noButtonClicked(_ sender: UIButton) {
-    guard let currentQuestion else {
-      return
-    }
-    let givenAnswer = false
-    buttonsStackView.isUserInteractionEnabled = false
-    showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
+    operateButtonTap(givenAnswer: false)
   }
-  
   
   //MARK: - Private methods
+  
+  //operate button tapped
+  private func operateButtonTap(givenAnswer: Bool) {
+    disableButtonsInteraction()
+    guard let currentQuestion else {
+      return
+    }
+    showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
+  }
+  
+  //disable buttons interaction
+  private func disableButtonsInteraction() {
+    buttonsStackView.isUserInteractionEnabled = false
+  }
+  
   //Convertion from QuizQuestion to QuizStepViewModel
   private func convert(model: QuizQuestion) -> QuizStepViewModel {
-    QuizStepViewModel(image: UIImage(named: model.image) ?? UIImage() ,
+    QuizStepViewModel(image: UIImage(data: model.image) ?? UIImage() ,
                       question: model.text,
                       questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
   }
@@ -97,7 +106,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
       
     } else {
       currentQuestionIndex += 1
-      imageView.layer.borderColor = UIColor.clear.cgColor
+      
+      showLoadingIndicator()
       self.questionFactory?.requestNextQuestion()
     }
   }
@@ -120,6 +130,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     alertPresenter.showAlert(alertModel)
   }
   
+  //Showing ActivityIndicator
+  private func showLoadingIndicator() {
+    activityIndicator.startAnimating()
+  }
+  
+  //Hiding ActivityIndicator
+  private func hideLoadingIndicator() {
+    activityIndicator.stopAnimating()
+  }
+  
+  //Showing NetworkError
+  private func showNetworkError(message: String) {
+    hideLoadingIndicator()
+    alertPresenter.showAlert(AlertModel(title: "Что-то пошло не так(",
+                                        message: message,
+                                        buttonText: "Попробовать еще раз") { [weak self] in
+      guard let self else {return}
+      
+      guard let questionFactory = questionFactory as? QuestionFactory else { return }
+      questionFactory.loadData()
+    })
+  }
   
   //MARK: - QuestionFactoryDelegate
   func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -131,7 +163,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     DispatchQueue.main.async { [weak self] in
       self?.show(quiz: viewModel)
     }
-    
+  }
+  
+  func didLoadDataFromServer() {
+    hideLoadingIndicator()
+    questionFactory?.requestNextQuestion()
+  }
+  
+  func didFailToLoadData(with error: any Error) {
+    showNetworkError(message: error.localizedDescription)
+  }
+  
+  func hideLoadingIndicatorWhenTheImageIsLoaded() {
+    hideLoadingIndicator()
+    imageView.layer.borderColor = UIColor.clear.cgColor
   }
   
   //MARK: - AlertPresenterDelegate
@@ -148,3 +193,5 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   }
   
 }
+
+

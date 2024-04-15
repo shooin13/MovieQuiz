@@ -27,48 +27,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
-      <TestPlans>
-         <TestPlanReference
-            reference = "container:MovieQuiz.xctestplan"
-            default = "YES">
-         </TestPlanReference>
-      </TestPlans>
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "57B5B2A72BC8B0E50096C77D"
-               BuildableName = "MovieQuizTests.xctest"
-               BlueprintName = "MovieQuizTests"
-               ReferencedContainer = "container:MovieQuiz.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "570DFD432BCC24A4004F1809"
-               BuildableName = "MovieQuizUITests_to delete.xctest"
-               BlueprintName = "MovieQuizUITests_to delete"
-               ReferencedContainer = "container:MovieQuiz.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "573FD27F2BCC2CBE004D8B0A"
-               BuildableName = "MovieQuizUITests.xctest"
-               BlueprintName = "MovieQuizUITests"
-               ReferencedContainer = "container:MovieQuiz.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

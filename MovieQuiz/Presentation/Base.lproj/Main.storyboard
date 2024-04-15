@@ -39,7 +39,6 @@
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="1/10" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Jm-Px-vfG" userLabel="Index Label">
                                                 <rect key="frame" x="354" y="0.0" width="36" height="23.666666666666668"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="Index"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <color key="textColor" name="YP White"/>
                                                 <nil key="highlightedColor"/>
@@ -49,7 +48,6 @@
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="HNx-xe-RA5" userLabel="Preview Image">
                                         <rect key="frame" x="0.0" y="43.666666666666686" width="390" height="585"/>
                                         <color key="backgroundColor" name="YP White"/>
-                                        <accessibility key="accessibilityConfiguration" identifier="Poster"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="HNx-xe-RA5" secondAttribute="height" multiplier="2:3" id="wZ1-kr-6D8"/>
                                         </constraints>
@@ -71,7 +69,6 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IUu-2r-XW9" userLabel="No Button">
                                                 <rect key="frame" x="0.0" y="0.0" width="185" height="60"/>
                                                 <color key="backgroundColor" name="YP White"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="No"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="Нет">
@@ -89,7 +86,6 @@
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MBs-8Y-ONT" userLabel="Yes Button">
                                                 <rect key="frame" x="205" y="0.0" width="185" height="60"/>
                                                 <color key="backgroundColor" name="YP White"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="Yes"/>
                                                 <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" title="Да">

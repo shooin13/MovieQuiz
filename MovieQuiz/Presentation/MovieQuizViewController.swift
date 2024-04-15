@@ -122,7 +122,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                                             Рекорд: \(statisticService.bestGame.correct)/\(questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
                                             Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy * 100))%
                                         """,
-                                buttonText: "Сыграть еще раз") { [weak self] in
+                                buttonText: "Сыграть еще раз", 
+                                accessibilityIndicator: "QuizResultAlert") { [weak self] in
       guard let self else { return }
       alertPresenterDidTapButton(alertPresenter)
     }
@@ -145,7 +146,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     hideLoadingIndicator()
     alertPresenter.showAlert(AlertModel(title: "Что-то пошло не так(",
                                         message: message,
-                                        buttonText: "Попробовать еще раз") { [weak self] in
+                                        buttonText: "Попробовать еще раз", 
+                                        accessibilityIndicator: "NetworkErrorAlert") { [weak self] in
       guard let self else {return}
       
       guard let questionFactory = questionFactory as? QuestionFactory else { return }

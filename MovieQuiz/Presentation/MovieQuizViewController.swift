@@ -7,14 +7,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   @IBOutlet private weak var imageView: UIImageView!
   @IBOutlet private weak var textLabel: UILabel!
   @IBOutlet private weak var counterLabel: UILabel!
-  @IBOutlet private weak var buttonsStackView: UIStackView!
+  @IBOutlet weak var buttonsStackView: UIStackView!
   @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
   
   //MARK: - Private properties
   
   private var correctAnswers = 0
   private var questionFactory: QuestionFactoryProtocol?
-  private var currentQuestion: QuizQuestion?
   private var alertPresenter = AlertPresenter()
   private var statisticService = StatisticServiceImplementation()
   private let moviesLoader = MoviesLoader()
@@ -38,32 +37,19 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     showLoadingIndicator()
     (questionFactory as! QuestionFactory).loadData()
     alertPresenter.delegate = self
+    presenter.viewController = self
   }
   
   //MARK: - IBActions
   
   @IBAction private func yesButtonClicked(_ sender: UIButton) {
-    operateButtonTap(givenAnswer: true)
+    presenter.yesButtonClicked()
   }
   @IBAction private func noButtonClicked(_ sender: UIButton) {
-    operateButtonTap(givenAnswer: false)
+    presenter.noButtonClicked()
   }
   
   //MARK: - Private methods
-  
-  //operate button tapped
-  private func operateButtonTap(givenAnswer: Bool) {
-    disableButtonsInteraction()
-    guard let currentQuestion else {
-      return
-    }
-    showAnswerResult(isCorrect: currentQuestion.correctAnswer == givenAnswer)
-  }
-  
-  //disable buttons interaction
-  private func disableButtonsInteraction() {
-    buttonsStackView.isUserInteractionEnabled = false
-  }
   
   //Showing question in ViewController
   private func show(quiz step: QuizStepViewModel) {
@@ -73,7 +59,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   }
   
   //Showing the result was correct/incorrect
-  private func showAnswerResult(isCorrect: Bool) {
+  func showAnswerResult(isCorrect: Bool) {
     imageView.layer.masksToBounds = true
     imageView.layer.borderWidth = 8
     imageView.layer.cornerRadius = 20
@@ -151,7 +137,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     guard let question = question else {
       return
     }
-    currentQuestion = question
+    presenter.currentQuestion = question
     let viewModel = presenter.convert(model: question)
     DispatchQueue.main.async { [weak self] in
       self?.show(quiz: viewModel)

@@ -35,7 +35,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     statisticService = StatisticServiceImplementation()
     showLoadingIndicator()
-    (questionFactory as! QuestionFactory).loadData()
+    guard let questionFactory = questionFactory as? QuestionFactory else { return }
+    questionFactory.loadData()
     alertPresenter.delegate = self
     presenter.viewController = self
   }
@@ -52,7 +53,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   //MARK: - Private methods
   
   //Showing question in ViewController
-  private func show(quiz step: QuizStepViewModel) {
+  func show(quiz step: QuizStepViewModel) {
     imageView.image = step.image
     textLabel.text = step.question
     counterLabel.text = step.questionNumber
@@ -71,26 +72,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
       guard let self else { return }
-      self.showNextQuestionOrResults()
-      self.buttonsStackView.isUserInteractionEnabled = true
+      buttonsStackView.isUserInteractionEnabled = true
+      self.presenter.correctAnswers = self.correctAnswers
+      self.presenter.questionFactory = self.questionFactory
+      presenter.showNextQuestionOrResults()
     }
   }
   
   //Showing next question or demonstrating Quiz results
-  private func showNextQuestionOrResults() {
-    if presenter.isLastQuestion() {
-      // go to Quiz Results
-      showQuizResult()
-      
-    } else {
-      presenter.switchToNextQuestion()
-      showLoadingIndicator()
-      self.questionFactory?.requestNextQuestion()
-    }
-  }
+//  private func showNextQuestionOrResults() {
+//    if presenter.isLastQuestion() {
+//      // go to Quiz Results
+//      showQuizResult()
+//      
+//    } else {
+//      presenter.switchToNextQuestion()
+//      showLoadingIndicator()
+//      self.questionFactory?.requestNextQuestion()
+//    }
+//  }
   
   //Showing Quiz Results
-  private func showQuizResult() {
+  func showQuizResult() {
     statisticService.store(correct: correctAnswers, total: presenter.questionsAmount)
     let alertModel = AlertModel(title: "Этот раунд окончен!",
                                 message: """
@@ -109,7 +112,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   }
   
   //Showing ActivityIndicator
-  private func showLoadingIndicator() {
+  func showLoadingIndicator() {
     activityIndicator.startAnimating()
   }
   
@@ -134,14 +137,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   
   //MARK: - QuestionFactoryDelegate
   func didReceiveNextQuestion(question: QuizQuestion?) {
-    guard let question = question else {
-      return
-    }
-    presenter.currentQuestion = question
-    let viewModel = presenter.convert(model: question)
-    DispatchQueue.main.async { [weak self] in
-      self?.show(quiz: viewModel)
-    }
+    presenter.didReceiveNextQuestion(question: question)
   }
   
   func didLoadDataFromServer() {

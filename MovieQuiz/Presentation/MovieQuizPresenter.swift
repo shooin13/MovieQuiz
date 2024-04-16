@@ -5,10 +5,12 @@ final class MovieQuizPresenter {
   let questionsAmount = 10
   weak var viewController: MovieQuizViewController?
   var currentQuestion: QuizQuestion?
+  var questionFactory: QuestionFactoryProtocol?
+  var correctAnswers: Int = 0
   
   //MARK: - Private properties
   
-  private var currentQuestionIndex = 0
+  var currentQuestionIndex = 0
   
   
   //MARK: - Private methods
@@ -53,5 +55,29 @@ final class MovieQuizPresenter {
   func noButtonClicked() {
     operateButtonTap(givenAnswer: false)
   }
+  
+  func didReceiveNextQuestion(question: QuizQuestion?) {
+    guard let question = question else {
+      return
+    }
+    currentQuestion = question
+    let viewModel = convert(model: question)
+    DispatchQueue.main.async { [weak self] in
+      self?.viewController?.show(quiz: viewModel)
+    }
+  }
+  
+  func showNextQuestionOrResults() {
+    if self.isLastQuestion() {
+      viewController?.showQuizResult()
+    } else {
+      self.switchToNextQuestion()
+      viewController?.showLoadingIndicator()
+      self.questionFactory?.requestNextQuestion()
+    }
+  }
+  
+  
+  
   
 }

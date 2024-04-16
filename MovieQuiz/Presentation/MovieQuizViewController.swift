@@ -35,7 +35,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     statisticService = StatisticServiceImplementation()
     showLoadingIndicator()
-    (questionFactory as! QuestionFactory).loadData()
+    guard let questionFactory = questionFactory as? QuestionFactory else { return }
+    questionFactory.loadData()
     alertPresenter.delegate = self
   }
   

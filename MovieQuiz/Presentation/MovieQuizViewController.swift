@@ -13,11 +13,8 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
   //MARK: - Private properties
   
   private var alertPresenter = AlertPresenter()
-  private var statisticService = StatisticServiceImplementation()
   private let moviesLoader = MoviesLoader()
   private var presenter: MovieQuizPresenter!
-  
-
   
   //MARK: - UI Setup
   
@@ -25,14 +22,31 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
     return .lightContent
   }
   
+  func highLightImageBorder() {
+    imageView.layer.masksToBounds = true
+    imageView.layer.borderWidth = 8
+    imageView.layer.cornerRadius = 20
+  }
+  
+
+  
+  //MARK: - ActivityIndicator
+  func showLoadingIndicator() {
+    activityIndicator.startAnimating()
+  }
+  
+  func hideLoadingIndicator() {
+    activityIndicator.stopAnimating()
+  }
+  
   // MARK: - Lifecycle
   
   override func viewDidLoad() {
     super.viewDidLoad()
     presenter = MovieQuizPresenter(viewController: self)
-    statisticService = StatisticServiceImplementation()
     showLoadingIndicator()
     alertPresenter.delegate = self
+    highLightImageBorder()
   }
   
   //MARK: - IBActions
@@ -44,47 +58,15 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
     presenter.noButtonClicked()
   }
   
-  //MARK: - Private methods
+  // MARK: - Quiz step presentation
   
-  //Showing question in ViewController
   func show(quiz step: QuizStepViewModel) {
     imageView.image = step.image
     textLabel.text = step.question
     counterLabel.text = step.questionNumber
   }
   
-  //Showing the result was correct/incorrect
-  func showAnswerResult(isCorrect: Bool) {
-    imageView.layer.masksToBounds = true
-    imageView.layer.borderWidth = 8
-    imageView.layer.cornerRadius = 20
-    presenter.didAnswer(isCorrect: isCorrect)
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-      guard let self else { return }
-      buttonsStackView.isUserInteractionEnabled = true
-      presenter.showNextQuestionOrResults()
-    }
-  }
-  
-  
-  //Showing Quiz Results
-  func showQuizResult() {
-    statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
-    let alertModel = AlertModel(title: "Этот раунд окончен!",
-                                message: """
-                                            Ваш результат: \(presenter.correctAnswers)/\(presenter.questionsAmount)
-                                            Количество сыгранных квизов: \(statisticService.gamesCount)
-                                            Рекорд: \(statisticService.bestGame.correct)/\(presenter.questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
-                                            Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy * 100))%
-                                        """,
-                                buttonText: "Сыграть еще раз", 
-                                accessibilityIndicator: "QuizResultAlert") { [weak self] in
-      guard let self else { return }
-      alertPresenterDidTapButton(alertPresenter)
-    }
-    
-    alertPresenter.showAlert(alertModel)
-  }
+  // MARK: - Border indication
   
   func paintBorderWhenTheAnswerIsWrong() {
     imageView.layer.borderColor = UIColor.ypRed.cgColor
@@ -96,17 +78,22 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
     imageView.layer.borderColor = UIColor.clear.cgColor
   }
   
-  //Showing ActivityIndicator
-  func showLoadingIndicator() {
-    activityIndicator.startAnimating()
+  // MARK: - Quiz result presentation
+  
+  func showQuizResult() {
+    let message = presenter.makeResultsMessage()
+    let alertModel = AlertModel(title: "Этот раунд окончен!",
+                                message: message,
+                                buttonText: "Сыграть еще раз",
+                                accessibilityIndicator: "QuizResultAlert") { [weak self] in
+      guard let self else { return }
+      alertPresenterDidTapButton(alertPresenter)
+    }
+    
+    alertPresenter.showAlert(alertModel)
   }
   
-  //Hiding ActivityIndicator
-  func hideLoadingIndicator() {
-    activityIndicator.stopAnimating()
-  }
-  
-  //Showing NetworkError
+  //MARK: - Network error presentation
   func showNetworkError(message: String) {
     hideLoadingIndicator()
     alertPresenter.showAlert(AlertModel(title: "Что-то пошло не так(",

@@ -1,12 +1,24 @@
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate {
+  
+  
   
   let questionsAmount = 10
-  weak var viewController: MovieQuizViewController?
+  private weak var viewController: MovieQuizViewController?
   var currentQuestion: QuizQuestion?
-  var questionFactory: QuestionFactoryProtocol?
+  private var questionFactory: QuestionFactoryProtocol?
   var correctAnswers: Int = 0
+  var alertPresenter = AlertPresenter()
+  
+  init (viewController: MovieQuizViewController) {
+    self.viewController = viewController
+    
+    questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+    guard let questionFactory = questionFactory as? QuestionFactory else { return }
+    questionFactory.loadData()
+    alertPresenter.delegate = self
+  }
   
   //MARK: - Private properties
   
@@ -41,10 +53,6 @@ final class MovieQuizPresenter {
     currentQuestionIndex == questionsAmount - 1
   }
   
-  func resetQuestionIndex() {
-    currentQuestionIndex = 0
-  }
-  
   func switchToNextQuestion() {
     currentQuestionIndex += 1
   }
@@ -77,7 +85,50 @@ final class MovieQuizPresenter {
     }
   }
   
+  func restartGame() {
+    correctAnswers = 0
+    currentQuestionIndex = 0
+    questionFactory?.requestNextQuestion()
+  }
   
+  func didAnswer(isCorrect: Bool) {
+    if isCorrect {
+      correctAnswers += 1
+      viewController?.paintBorderWhenTheAnswerIsCorrect()
+    } else {
+      viewController?.paintBorderWhenTheAnswerIsWrong()
+    }
+  }
   
+  //MARK: - QuestionFactoryDelegate
+  func didLoadDataFromServer() {
+    viewController?.hideLoadingIndicator()
+    questionFactory?.requestNextQuestion()
+  }
+  
+  func didFailToLoadData(with error: any Error) {
+    viewController?.showNetworkError(message: error.localizedDescription)
+  }
+  
+  func hideLoadingIndicatorWhenTheImageIsLoaded() {
+    viewController?.hideLoadingIndicator()
+    viewController?.paintTheBorderWhenQuestionAppears()
+  }
+  
+  //MARK: - AlertPresenterDelegate
+  func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter) {
+    restartGame()
+    questionFactory?.requestNextQuestion()
+    viewController?.hideLoadingIndicator()
+  }
+  
+  func viewControllerForAlertPresenting() -> UIViewController {
+    MovieQuizViewController()
+  }
+  
+  func loadQuestionData() {
+      guard let questionFactory = questionFactory as? QuestionFactory else { return }
+      questionFactory.loadData()
+  }
   
 }

@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
+final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
   
   //MARK: - IBOutlets
   
@@ -12,12 +12,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   
   //MARK: - Private properties
   
-  private var correctAnswers = 0
-  private var questionFactory: QuestionFactoryProtocol?
   private var alertPresenter = AlertPresenter()
   private var statisticService = StatisticServiceImplementation()
   private let moviesLoader = MoviesLoader()
-  private let presenter = MovieQuizPresenter()
+  private var presenter: MovieQuizPresenter!
   
 
   
@@ -31,14 +29,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
-    questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+    presenter = MovieQuizPresenter(viewController: self)
     statisticService = StatisticServiceImplementation()
     showLoadingIndicator()
-    guard let questionFactory = questionFactory as? QuestionFactory else { return }
-    questionFactory.loadData()
     alertPresenter.delegate = self
-    presenter.viewController = self
   }
   
   //MARK: - IBActions
@@ -64,40 +58,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     imageView.layer.masksToBounds = true
     imageView.layer.borderWidth = 8
     imageView.layer.cornerRadius = 20
-    if isCorrect {
-      imageView.layer.borderColor = UIColor.ypGreen.cgColor
-      correctAnswers += 1
-    } else {
-      imageView.layer.borderColor = UIColor.ypRed.cgColor
-    }
+    presenter.didAnswer(isCorrect: isCorrect)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
       guard let self else { return }
       buttonsStackView.isUserInteractionEnabled = true
-      self.presenter.correctAnswers = self.correctAnswers
-      self.presenter.questionFactory = self.questionFactory
       presenter.showNextQuestionOrResults()
     }
   }
   
-  //Showing next question or demonstrating Quiz results
-//  private func showNextQuestionOrResults() {
-//    if presenter.isLastQuestion() {
-//      // go to Quiz Results
-//      showQuizResult()
-//      
-//    } else {
-//      presenter.switchToNextQuestion()
-//      showLoadingIndicator()
-//      self.questionFactory?.requestNextQuestion()
-//    }
-//  }
   
   //Showing Quiz Results
   func showQuizResult() {
-    statisticService.store(correct: correctAnswers, total: presenter.questionsAmount)
+    statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
     let alertModel = AlertModel(title: "Этот раунд окончен!",
                                 message: """
-                                            Ваш результат: \(correctAnswers)/\(presenter.questionsAmount)
+                                            Ваш результат: \(presenter.correctAnswers)/\(presenter.questionsAmount)
                                             Количество сыгранных квизов: \(statisticService.gamesCount)
                                             Рекорд: \(statisticService.bestGame.correct)/\(presenter.questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
                                             Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy * 100))%
@@ -111,18 +86,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     alertPresenter.showAlert(alertModel)
   }
   
+  func paintBorderWhenTheAnswerIsWrong() {
+    imageView.layer.borderColor = UIColor.ypRed.cgColor
+  }
+  func paintBorderWhenTheAnswerIsCorrect() {
+    imageView.layer.borderColor = UIColor.ypGreen.cgColor
+  }
+  func paintTheBorderWhenQuestionAppears() {
+    imageView.layer.borderColor = UIColor.clear.cgColor
+  }
+  
   //Showing ActivityIndicator
   func showLoadingIndicator() {
     activityIndicator.startAnimating()
   }
   
   //Hiding ActivityIndicator
-  private func hideLoadingIndicator() {
+  func hideLoadingIndicator() {
     activityIndicator.stopAnimating()
   }
   
   //Showing NetworkError
-  private func showNetworkError(message: String) {
+  func showNetworkError(message: String) {
     hideLoadingIndicator()
     alertPresenter.showAlert(AlertModel(title: "Что-то пошло не так(",
                                         message: message,
@@ -130,36 +115,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                                         accessibilityIndicator: "NetworkErrorAlert") { [weak self] in
       guard let self else {return}
       
-      guard let questionFactory = questionFactory as? QuestionFactory else { return }
-      questionFactory.loadData()
+      presenter.loadQuestionData()
     })
   }
   
-  //MARK: - QuestionFactoryDelegate
-  func didReceiveNextQuestion(question: QuizQuestion?) {
-    presenter.didReceiveNextQuestion(question: question)
-  }
-  
-  func didLoadDataFromServer() {
-    hideLoadingIndicator()
-    questionFactory?.requestNextQuestion()
-  }
-  
-  func didFailToLoadData(with error: any Error) {
-    showNetworkError(message: error.localizedDescription)
-  }
-  
-  func hideLoadingIndicatorWhenTheImageIsLoaded() {
-    hideLoadingIndicator()
-    imageView.layer.borderColor = UIColor.clear.cgColor
-  }
-  
   //MARK: - AlertPresenterDelegate
-  
   func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter) {
-    presenter.resetQuestionIndex()
-    correctAnswers = 0
-    questionFactory?.requestNextQuestion()
+    presenter.restartGame()
     imageView.layer.borderColor = UIColor.clear.cgColor
   }
   

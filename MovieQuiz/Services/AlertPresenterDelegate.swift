@@ -1,6 +1,7 @@
 import UIKit
 
 protocol AlertPresenterDelegate: AnyObject {
-    func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter)
+  func alertPresenterDidTapButton(restart: Bool)
     func viewControllerForAlertPresenting() -> UIViewController
+      func showAlert(_ alertModel: AlertModel)
 }

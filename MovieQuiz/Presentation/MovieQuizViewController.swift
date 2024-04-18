@@ -1,6 +1,19 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQuizViewControllerProtocol {
+protocol MovieQuizViewControllerProtocol: AnyObject {
+    func show(quiz step: QuizStepViewModel)
+    func showQuizResult()
+    
+    func highlightImageBorder()
+    
+    func showLoadingIndicator()
+    func hideLoadingIndicator()
+    
+    func showNetworkError(message: String)
+}
+
+
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
   
   //MARK: - IBOutlets
   
@@ -12,8 +25,6 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, M
   
   //MARK: - Private properties
   
-  private var alertPresenter = AlertPresenter()
-  private let moviesLoader = MoviesLoader()
   private var presenter: MovieQuizPresenter!
   
   //MARK: - UI Setup
@@ -28,24 +39,12 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, M
     imageView.layer.cornerRadius = 20
   }
   
-
-  
-  //MARK: - ActivityIndicator
-  func showLoadingIndicator() {
-    activityIndicator.startAnimating()
-  }
-  
-  func hideLoadingIndicator() {
-    activityIndicator.stopAnimating()
-  }
-  
   // MARK: - Lifecycle
   
   override func viewDidLoad() {
     super.viewDidLoad()
     presenter = MovieQuizPresenter(viewController: self)
     showLoadingIndicator()
-    alertPresenter.delegate = self
     highlightImageBorder()
   }
   
@@ -56,6 +55,16 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, M
   }
   @IBAction private func noButtonClicked(_ sender: UIButton) {
     presenter.noButtonClicked()
+  }
+  
+  //MARK: - ActivityIndicator
+  
+  func showLoadingIndicator() {
+    activityIndicator.startAnimating()
+  }
+  
+  func hideLoadingIndicator() {
+    activityIndicator.stopAnimating()
   }
   
   // MARK: - Quiz step presentation
@@ -87,33 +96,22 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, M
                                 buttonText: "Сыграть еще раз",
                                 accessibilityIndicator: "QuizResultAlert") { [weak self] in
       guard let self else { return }
-      alertPresenterDidTapButton(alertPresenter)
+      presenter.alertPresenterDidTapButton(restart: true)
     }
     
-    alertPresenter.showAlert(alertModel)
+    presenter.showAlert(alertModel)
   }
   
   //MARK: - Network error presentation
   func showNetworkError(message: String) {
     hideLoadingIndicator()
-    alertPresenter.showAlert(AlertModel(title: "Что-то пошло не так(",
+    presenter.showAlert(AlertModel(title: "Что-то пошло не так(",
                                         message: message,
                                         buttonText: "Попробовать еще раз", 
                                         accessibilityIndicator: "NetworkErrorAlert") { [weak self] in
       guard let self else {return}
-      
       presenter.loadQuestionData()
     })
-  }
-  
-  //MARK: - AlertPresenterDelegate
-  func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter) {
-    presenter.restartGame()
-    imageView.layer.borderColor = UIColor.clear.cgColor
-  }
-  
-  func viewControllerForAlertPresenting() -> UIViewController {
-    return self
   }
   
 }

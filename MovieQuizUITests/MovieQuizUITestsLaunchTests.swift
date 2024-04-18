@@ -1,10 +1,3 @@
-//
-//  MovieQuizUITestsLaunchTests.swift
-//  MovieQuizUITests
-//
-//  Created by Павел Николаев on 14.04.2024.
-//
-
 import XCTest
 
 final class MovieQuizUITestsLaunchTests: XCTestCase {

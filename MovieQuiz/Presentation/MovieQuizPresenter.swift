@@ -1,13 +1,17 @@
 import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate {
-  
-  //MARK: - properties
+
+  //MARK: - Private properties
   
   private let questionsAmount = 10
   private var currentQuestion: QuizQuestion?
   private var correctAnswers: Int = 0
-  var alertPresenter = AlertPresenter()
+  private var alertPresenter: AlertPresenter?
+  private weak var viewController: MovieQuizViewController?
+  private var questionFactory: QuestionFactoryProtocol?
+  private var statisticService = StatisticServiceImplementation()
+  private var currentQuestionIndex = 0
   
   // MARK: - Initialization
   
@@ -17,17 +21,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
     questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     guard let questionFactory = questionFactory as? QuestionFactory else { return }
     questionFactory.loadData()
-    alertPresenter.delegate = self
+    alertPresenter = AlertPresenter(delegate: self)
   }
-  
-  //MARK: - Private properties
-  private weak var viewController: MovieQuizViewController?
-  private var questionFactory: QuestionFactoryProtocol?
-  private var statisticService = StatisticServiceImplementation()
-  
-  var currentQuestionIndex = 0
-  
-  //MARK: - Custom methods
   
   // MARK: - Button Actions
   
@@ -136,6 +131,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
     return resultMessage
   }
   
+  func loadQuestionData() {
+    guard let questionFactory = questionFactory as? QuestionFactory else { return }
+    questionFactory.loadData()
+  }
+  
+  func showAlert(_ alertModel: AlertModel) {
+    alertPresenter?.showAlert(alertModel)
+  }
   
   //MARK: - QuestionFactoryDelegate
   func didLoadDataFromServer() {
@@ -153,19 +156,17 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
   }
   
   //MARK: - AlertPresenterDelegate
-  func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter) {
-    restartGame()
-    questionFactory?.requestNextQuestion()
+  func alertPresenterDidTapButton(restart: Bool) {
+    if restart {
+      restartGame()
+    } else {
+      questionFactory?.requestNextQuestion()
+    }
+    
     viewController?.hideLoadingIndicator()
   }
   
   func viewControllerForAlertPresenting() -> UIViewController {
-    MovieQuizViewController()
+    viewController ?? MovieQuizViewController()
   }
-  
-  func loadQuestionData() {
-    guard let questionFactory = questionFactory as? QuestionFactory else { return }
-    questionFactory.loadData()
-  }
-  
 }

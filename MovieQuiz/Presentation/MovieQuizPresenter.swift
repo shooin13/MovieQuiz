@@ -11,8 +11,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
   
   // MARK: - Initialization
   
-  init (viewController: MovieQuizViewController) {
-    self.viewController = viewController
+  init (viewController: MovieQuizViewControllerProtocol) {
+    self.viewController = viewController as? MovieQuizViewController
     
     questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     guard let questionFactory = questionFactory as? QuestionFactory else { return }

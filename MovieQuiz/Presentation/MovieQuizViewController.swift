@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
+final class MovieQuizViewController: UIViewController, AlertPresenterDelegate, MovieQuizViewControllerProtocol {
   
   //MARK: - IBOutlets
   
@@ -22,7 +22,7 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
     return .lightContent
   }
   
-  func highLightImageBorder() {
+  func highlightImageBorder() {
     imageView.layer.masksToBounds = true
     imageView.layer.borderWidth = 8
     imageView.layer.cornerRadius = 20
@@ -46,7 +46,7 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
     presenter = MovieQuizPresenter(viewController: self)
     showLoadingIndicator()
     alertPresenter.delegate = self
-    highLightImageBorder()
+    highlightImageBorder()
   }
   
   //MARK: - IBActions

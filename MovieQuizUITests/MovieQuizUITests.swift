@@ -3,6 +3,13 @@ import XCTest
 final class MovieQuizUITests: XCTestCase {
   var app: XCUIApplication!
   
+  private func tapButton(buttonAcessibilityIndicator: String, times: Int) {
+    for _ in 1...times {
+      app.buttons[buttonAcessibilityIndicator].tap()
+      sleep(3)
+    }
+  }
+  
   private func prepareButtonForTestAndTestResult(buttonIndex: String) {
     sleep(3)
     
@@ -46,18 +53,21 @@ final class MovieQuizUITests: XCTestCase {
   }
   
   func testQuizResultAlertAppearedWithCorrectHeadingAndButtonText() {
-    for _ in 1...10 {
-      app.buttons["Yes"].tap()
-      sleep(3)
-    }
+    tapButton(buttonAcessibilityIndicator: "Yes", times: 10)
     let alert = app.alerts["QuizResultAlert"]
-    print(alert.label)
-    print(alert.buttons.firstMatch.label)
     let alertLabelText = alert.label
     let alertButtonText = alert.buttons.firstMatch.label
     
     XCTAssertTrue(alert.exists)
     XCTAssertTrue(alertLabelText == "Этот раунд окончен!")
     XCTAssertTrue(alertButtonText == "Сыграть еще раз")
+    
+    alert.buttons.firstMatch.tap()
+    
+    sleep(3)
+    XCTAssertFalse(alert.exists)
+    let indexLabel = app.staticTexts["Index"]
+    XCTAssertEqual(indexLabel.label, "1/10")
   }
+  
 }

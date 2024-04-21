@@ -18,7 +18,9 @@ final class AlertPresenter {
       alertModel.completion?()
     }
     alert.addAction(action)
-    delegate?.viewControllerForAlertPresenting().present(alert, animated: true)
+    let viewController = delegate?.viewControllerForAlertPresenting() as? MovieQuizViewController
+    guard let viewController else { return }
+    viewController.present(alert, animated: true)
   }
   
 }

@@ -1,27 +1,28 @@
 import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate {
-
+  
   //MARK: - Private properties
   
   private let questionsAmount = 10
   private var currentQuestion: QuizQuestion?
   private var correctAnswers: Int = 0
   private var alertPresenter: AlertPresenter?
-  private weak var viewController: MovieQuizViewController?
+  private weak var viewController: MovieQuizViewControllerProtocol?
   private var questionFactory: QuestionFactoryProtocol?
-  private var statisticService = StatisticServiceImplementation()
+  private var statisticService: StatisticService?
   private var currentQuestionIndex = 0
   
   // MARK: - Initialization
   
   init (viewController: MovieQuizViewControllerProtocol) {
-    self.viewController = viewController as? MovieQuizViewController
+    self.viewController = viewController
     
     questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     guard let questionFactory = questionFactory as? QuestionFactory else { return }
     questionFactory.loadData()
     alertPresenter = AlertPresenter(delegate: self)
+    statisticService = StatisticServiceImplementation()
   }
   
   // MARK: - Button Actions
@@ -35,32 +36,33 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
   }
   
   private func operateButtonTap(givenAnswer: Bool) {
-    disableButtonsInteraction()
+    //    disableButtonsInteraction()
+    viewController?.disableUI()
     guard let currentQuestion else {
       return
     }
     proceedWithAnswer(isCorrect: currentQuestion.correctAnswer == givenAnswer)
   }
   
-  private func disableButtonsInteraction() {
-    viewController?.buttonsStackView.isUserInteractionEnabled = false
-  }
-  
-  private func enableButtonsInteraction() {
-    viewController?.buttonsStackView.isUserInteractionEnabled = true
-  }
+  //  private func disableButtonsInteraction() {
+  //    viewController?.buttonsStackView.isUserInteractionEnabled = false
+  //  }
+  //  
+  //  private func enableButtonsInteraction() {
+  //    viewController?.buttonsStackView.isUserInteractionEnabled = true
+  //  }
   
   // MARK: - Quiz Handling
   
-  func switchToNextQuestion() {
+  private func switchToNextQuestion() {
     currentQuestionIndex += 1
   }
   
-  func isLastQuestion() -> Bool {
+  private func isLastQuestion() -> Bool {
     currentQuestionIndex == questionsAmount - 1
   }
   
-  func proceedToNextQuestionOrResults() {
+  private func proceedToNextQuestionOrResults() {
     if self.isLastQuestion() {
       viewController?.showQuizResult()
     } else {
@@ -70,27 +72,37 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
     }
   }
   
-  func restartGame() {
+  private func restartGame() {
     correctAnswers = 0
     currentQuestionIndex = 0
     questionFactory?.requestNextQuestion()
   }
   
-  func proceedWithAnswer(isCorrect: Bool) {
+  private func proceedWithAnswer(isCorrect: Bool) {
     didAnswer(isCorrect: isCorrect)
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
       guard let self else { return }
-      enableButtonsInteraction()
+      viewController?.enableUI()
+      //      enableButtonsInteraction()
       proceedToNextQuestionOrResults()
     }
   }
   
   // MARK: - Data handling
   
-  func convert(model: QuizQuestion) -> QuizStepViewModel {
+  private func convert(model: QuizQuestion) -> QuizStepViewModel {
     QuizStepViewModel(image: UIImage(data: model.image) ?? UIImage() ,
                       question: model.text,
                       questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+  }
+  
+  private func didAnswer(isCorrect: Bool) {
+    if isCorrect {
+      correctAnswers += 1
+      viewController?.paintBorderWhenTheAnswerIsCorrect()
+    } else {
+      viewController?.paintBorderWhenTheAnswerIsWrong()
+    }
   }
   
   func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -104,17 +116,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
     }
   }
   
-  func didAnswer(isCorrect: Bool) {
-    if isCorrect {
-      correctAnswers += 1
-      viewController?.paintBorderWhenTheAnswerIsCorrect()
-    } else {
-      viewController?.paintBorderWhenTheAnswerIsWrong()
-    }
-  }
-  
   func makeResultsMessage() -> String {
-    statisticService.store(correct: correctAnswers, total: questionsAmount)
+    statisticService?.store(correct: correctAnswers, total: questionsAmount)
+    
+    guard let statisticService else { return "An error has occured" }
     
     let bestGame = statisticService.bestGame
     
@@ -166,7 +171,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
     viewController?.hideLoadingIndicator()
   }
   
-  func viewControllerForAlertPresenting() -> UIViewController {
+  func viewControllerForAlertPresenting() -> MovieQuizViewControllerProtocol {
     viewController ?? MovieQuizViewController()
   }
 }

@@ -16,7 +16,6 @@
 		572C93042BB0CFB900990925 /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572C93032BB0CFB900990925 /* AlertPresenter.swift */; };
 		572C93062BB0D04B00990925 /* AlertPresenterDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 572C93052BB0D04B00990925 /* AlertPresenterDelegate.swift */; };
 		573FD2832BCC2CBE004D8B0A /* MovieQuizUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 573FD2822BCC2CBE004D8B0A /* MovieQuizUITests.swift */; };
-		573FD2852BCC2CBE004D8B0A /* MovieQuizUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 573FD2842BCC2CBE004D8B0A /* MovieQuizUITestsLaunchTests.swift */; };
 		5746BCBD2BD1CBE7001DA0C6 /* MovieQuizViewControllerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5746BCBC2BD1CBE7001DA0C6 /* MovieQuizViewControllerMock.swift */; };
 		5746BCBF2BD1CBF9001DA0C6 /* MovieQuizPresenterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5746BCBE2BD1CBF9001DA0C6 /* MovieQuizPresenterTests.swift */; };
 		57484F8B2BB9D0BD0084F70C /* StatisticService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57484F8A2BB9D0BD0084F70C /* StatisticService.swift */; };
@@ -71,7 +70,6 @@
 		572C93052BB0D04B00990925 /* AlertPresenterDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenterDelegate.swift; sourceTree = "<group>"; };
 		573FD2802BCC2CBE004D8B0A /* MovieQuizUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MovieQuizUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		573FD2822BCC2CBE004D8B0A /* MovieQuizUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizUITests.swift; sourceTree = "<group>"; };
-		573FD2842BCC2CBE004D8B0A /* MovieQuizUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		5746BCBC2BD1CBE7001DA0C6 /* MovieQuizViewControllerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizViewControllerMock.swift; sourceTree = "<group>"; };
 		5746BCBE2BD1CBF9001DA0C6 /* MovieQuizPresenterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieQuizPresenterTests.swift; sourceTree = "<group>"; };
 		57484F8A2BB9D0BD0084F70C /* StatisticService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticService.swift; sourceTree = "<group>"; };
@@ -140,7 +138,6 @@
 			isa = PBXGroup;
 			children = (
 				573FD2822BCC2CBE004D8B0A /* MovieQuizUITests.swift */,
-				573FD2842BCC2CBE004D8B0A /* MovieQuizUITestsLaunchTests.swift */,
 			);
 			path = MovieQuizUITests;
 			sourceTree = "<group>";
@@ -386,7 +383,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				573FD2852BCC2CBE004D8B0A /* MovieQuizUITestsLaunchTests.swift in Sources */,
 				573FD2832BCC2CBE004D8B0A /* MovieQuizUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -36,21 +36,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
   }
   
   private func operateButtonTap(givenAnswer: Bool) {
-    //    disableButtonsInteraction()
     viewController?.disableUI()
     guard let currentQuestion else {
       return
     }
     proceedWithAnswer(isCorrect: currentQuestion.correctAnswer == givenAnswer)
   }
-  
-  //  private func disableButtonsInteraction() {
-  //    viewController?.buttonsStackView.isUserInteractionEnabled = false
-  //  }
-  //  
-  //  private func enableButtonsInteraction() {
-  //    viewController?.buttonsStackView.isUserInteractionEnabled = true
-  //  }
   
   // MARK: - Quiz Handling
   
@@ -83,7 +74,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate, AlertPresenterDelegate 
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
       guard let self else { return }
       viewController?.enableUI()
-      //      enableButtonsInteraction()
       proceedToNextQuestionOrResults()
     }
   }

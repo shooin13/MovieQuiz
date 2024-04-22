@@ -1,6 +1,7 @@
 import UIKit
 
 protocol AlertPresenterDelegate: AnyObject {
-    func alertPresenterDidTapButton(_ alertPresenter: AlertPresenter)
-    func viewControllerForAlertPresenting() -> UIViewController
+  func alertPresenterDidTapButton(restart: Bool)
+  func viewControllerForAlertPresenting() -> MovieQuizViewControllerProtocol
+  func showAlert(_ alertModel: AlertModel)
 }
